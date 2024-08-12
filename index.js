@@ -178,7 +178,6 @@ module.exports = (options = {}) => {
               //cond
               octalValidCssClassName = '.'+octalizeClassName(oldClassName.slice(1));
               // If ClassName already exist replace with its value else generate new : the should have same name.
-              console.log("validCssClassName:", validCssClassName);
               if (jsonData.hasOwnProperty(oldClassName)) {
                 selector = selector.replace(
                   validCssClassName,
