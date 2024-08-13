@@ -59,7 +59,8 @@ let singleFileData = {};
 let processedFiles = new Set();
 let idList = new Set();
 let cssNo = 0;
-let classesNo = 0;
+let handledClassesCount = 0;
+let totalClassesCount = 0;
 let idsNo = 0;
 const envMode = process.env.NODE_ENV;
 
@@ -165,6 +166,8 @@ module.exports = (options = {}) => {
           rule.selectors = rule.selectors.map((selector) => {
             // get List of all classNames in the selector
             const classList = getClassNames(selector);
+            totalClassesCount += classList.size;
+
             classList.forEach((className) => {
               // Generate new className
               let oldClassName = "." + className;
@@ -178,7 +181,7 @@ module.exports = (options = {}) => {
               } else {
                 newClassName = getRandomName(length);
               }
-              classesNo++;
+              handledClassesCount++;
               newClassName = `.${classPrefix}${newClassName}${classSuffix}`;
               validCssClassName = '.'+escapeClassName(oldClassName.slice(1));
               //cond
@@ -275,8 +278,8 @@ module.exports = (options = {}) => {
                         extensions,
                         htmlExcludes
                     )}/${getFileCount(srcPath, extensions, [])} Files| ${
-                        classesNo - classIgnore.length
-                    }/${classesNo} Class| ${idsNo - idIgnore.length}/${idsNo} Id`
+                        handledClassesCount - classIgnore.length
+                    }/${handledClassesCount} Class| ${idsNo - idIgnore.length}/${idsNo} Id`
                 );
                 callBack();
                 console.info(
