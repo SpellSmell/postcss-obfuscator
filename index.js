@@ -62,7 +62,7 @@ let cssNo = 0;
 let handledClassesCount = 0;
 let totalClassesCount = 0;
 let idsNo = 0;
-let isFirstRun = false;
+let isFirstRun = true;
 const envMode = process.env.NODE_ENV;
 
 module.exports = (options = {}) => {
@@ -169,7 +169,7 @@ module.exports = (options = {}) => {
             const classList = getClassNames(selector);
             totalClassesCount += classList.size;
             if (isFirstRun) {
-              for (const className of classIgnore) {
+              for (const className of classInclude) {
                 if (!classList.has(className)) {
                   classList.add(className);
                 }
@@ -216,7 +216,7 @@ module.exports = (options = {}) => {
             if (ids) {
               idList = getIdNames(selector);
               if (isFirstRun) {
-                for (const id of idIgnore) {
+                for (const id of idInclude) {
                   if (!idList.has(id)) {
                     idList.add(id);
                   }
@@ -249,7 +249,7 @@ module.exports = (options = {}) => {
                 singleFileData[oldIdName] = newIdName;
               });
             }
-            
+
             isFirstRun = false;
 
             return selector;
