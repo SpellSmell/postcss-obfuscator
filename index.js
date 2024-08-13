@@ -108,18 +108,18 @@ module.exports = (options = {}) => {
           console.log("\x1b[48;2;103;113;210m%s\x1b[0m", pluginHead);
           if (envMode === "dev" || envMode === "development") {
             logger(
-              "warn",
-              pluginName,
-              "Warning:",
-              "You are Running in Dev Mode!"
+                "warn",
+                pluginName,
+                "Warning:",
+                "You are Running in Dev Mode!"
             );
           }
           if (srcPath === desPath) {
             logger(
-              "warn",
-              pluginName,
-              "Warning:",
-              "Are You Sure You wanna Replace this file This my cause you loose your surce data please specify antother folder"
+                "warn",
+                pluginName,
+                "Warning:",
+                "Are You Sure You wanna Replace this file This my cause you loose your surce data please specify antother folder"
             );
           }
           cssFilesNo = getFileCount(srcPath, [".css"], cssExcludes);
@@ -165,20 +165,20 @@ module.exports = (options = {}) => {
           rule.selectors = rule.selectors.map((selector) => {
             // get List of all classNames in the selector
             const classList = getClassNames(selector);
-            classesNo += classList.size;
             classList.forEach((className) => {
               // Generate new className
               let oldClassName = "." + className;
               let newClassName;
               if (classIgnore.includes(className) || classMethod == "none") {
-                newClassName = className;
+                return;
               } else if (classInclude.length !== 0 && !classInclude.includes(className)) {
-                newClassName = className;
+                return;
               } else if (classMethod == "simple") {
                 newClassName = simplifyString(className);
               } else {
                 newClassName = getRandomName(length);
               }
+              classesNo++;
               newClassName = `.${classPrefix}${newClassName}${classSuffix}`;
               validCssClassName = '.'+escapeClassName(oldClassName.slice(1));
               //cond
@@ -186,13 +186,13 @@ module.exports = (options = {}) => {
               // If ClassName already exist replace with its value else generate new : the should have same name.
               if (jsonData.hasOwnProperty(oldClassName)) {
                 selector = selector.replace(
-                  validCssClassName,
-                  jsonData[oldClassName]
+                    validCssClassName,
+                    jsonData[oldClassName]
                 );
                 //cond
                 selector = selector.replace(
-                  octalValidCssClassName,
-                  jsonData[oldClassName]
+                    octalValidCssClassName,
+                    jsonData[oldClassName]
                 );
               } else {
                 selector = selector.replace(validCssClassName, newClassName);
@@ -240,59 +240,59 @@ module.exports = (options = {}) => {
         writeJsonToFile(data, newjsonsPath, formatJson, fresh, !multi & fresh);
         if (cssNo == cssFilesNo) {
           copyDirectory(srcPath, desPath, true)
-            .then(() => {
-              logger(
-                "info",
-                pluginName,
-                "Copying:",
-                `${srcPath} to ${desPath} finished!`
-              );
-              replaceJsonKeysInFiles(
-                desPath,
-                extensions,
-                htmlExcludes,
-                jsonsPath,
-                indicatorStart,
-                indicatorEnd,
-                keepData
-              );
-              logger(
-                "info",
-                pluginName,
-                "Replacing:",
-                `All files have been updated!`
-              );
-              logger(
-                "success",
-                pluginName,
-                "Processed:",
-                `${cssFilesNo}/${getFileCount(
-                  srcPath,
-                  [".css"],
-                  []
-                )} CSS| ${getFileCount(
-                  srcPath,
-                  extensions,
-                  htmlExcludes
-                )}/${getFileCount(srcPath, extensions, [])} Files| ${
-                  classesNo - classIgnore.length
-                }/${classesNo} Class| ${idsNo - idIgnore.length}/${idsNo} Id`
-              );
-              callBack();
-              console.info(
-                "\x1b[38;2;99;102;241m%s\x1b[0m",
-                "==========================================================================>",
-                "\x1b[0m"
-              );
-            })
-            .catch((error) => {
-              logger(
-                "error",
-                pluginName,
-                "Error copying directory:",
-                error.message
-              );
-            });
+              .then(() => {
+                logger(
+                    "info",
+                    pluginName,
+                    "Copying:",
+                    `${srcPath} to ${desPath} finished!`
+                );
+                replaceJsonKeysInFiles(
+                    desPath,
+                    extensions,
+                    htmlExcludes,
+                    jsonsPath,
+                    indicatorStart,
+                    indicatorEnd,
+                    keepData
+                );
+                logger(
+                    "info",
+                    pluginName,
+                    "Replacing:",
+                    `All files have been updated!`
+                );
+                logger(
+                    "success",
+                    pluginName,
+                    "Processed:",
+                    `${cssFilesNo}/${getFileCount(
+                        srcPath,
+                        [".css"],
+                        []
+                    )} CSS| ${getFileCount(
+                        srcPath,
+                        extensions,
+                        htmlExcludes
+                    )}/${getFileCount(srcPath, extensions, [])} Files| ${
+                        classesNo - classIgnore.length
+                    }/${classesNo} Class| ${idsNo - idIgnore.length}/${idsNo} Id`
+                );
+                callBack();
+                console.info(
+                    "\x1b[38;2;99;102;241m%s\x1b[0m",
+                    "==========================================================================>",
+                    "\x1b[0m"
+                );
+              })
+              .catch((error) => {
+                logger(
+                    "error",
+                    pluginName,
+                    "Error copying directory:",
+                    error.message
+                );
+              });
         }
       }
       processedFiles.add(jsonsPath);
