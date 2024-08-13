@@ -365,6 +365,27 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+async function findFiles(dir, extension) {
+  const results = [];
+  const files = await fs.promises.readdir(dir);
+
+  for (const file of files) {
+    const fullPath = path.join(dir, file);
+    const stat = await fs.promises.stat(fullPath);
+
+    if (stat.isDirectory()) {
+      const subDirResults = await findFiles(fullPath, extension);
+      results.push(...subDirResults);
+    } else {
+      if (path.extname(file) === '.' + extension) {
+        results.push(fullPath);
+      }
+    }
+  }
+
+  return results;
+}
+
 module.exports = {
   getRandomName,
   simplifyString,
@@ -379,4 +400,5 @@ module.exports = {
   isFileOrInDirectory,
   escapeClassName,
   octalizeClassName,
+  findFiles,
 };
