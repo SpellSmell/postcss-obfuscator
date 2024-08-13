@@ -212,7 +212,7 @@ module.exports = (options = {}) => {
                 let newIdName;
                 if (idIgnore.includes(idName) || idMethod == "none") {
                   newIdName = idName.splice(1);
-                if (idInclude.length !== 0 && !idInclude.includes(idName)) {
+                } else if (idInclude.length !== 0 && !idInclude.includes(idName)) {
                   newIdName = idName.splice(1);
                 } else if (idMethod == "simple") {
                   newIdName = simplifyString(idName);
