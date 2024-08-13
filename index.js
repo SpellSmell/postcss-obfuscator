@@ -62,6 +62,7 @@ let cssNo = 0;
 let handledClassesCount = 0;
 let totalClassesCount = 0;
 let idsNo = 0;
+let isFirstRun = false;
 const envMode = process.env.NODE_ENV;
 
 module.exports = (options = {}) => {
@@ -167,6 +168,13 @@ module.exports = (options = {}) => {
             // get List of all classNames in the selector
             const classList = getClassNames(selector);
             totalClassesCount += classList.size;
+            if (isFirstRun) {
+              for (const className of classIgnore) {
+                if (!classList.has(className)) {
+                  classList.add(className);
+                }
+              }
+            }
 
             classList.forEach((className) => {
               // Generate new className
@@ -207,6 +215,14 @@ module.exports = (options = {}) => {
             });
             if (ids) {
               idList = getIdNames(selector);
+              if (isFirstRun) {
+                for (const id of idIgnore) {
+                  if (!idList.has(id)) {
+                    idList.add(id);
+                  }
+                }
+              }
+
               idList.forEach((idName) => {
                 idsNo++;
                 // Get only idName not other elements or pseudo-element & remove spaces.
@@ -233,6 +249,9 @@ module.exports = (options = {}) => {
                 singleFileData[oldIdName] = newIdName;
               });
             }
+            
+            isFirstRun = false;
+
             return selector;
           });
         });
