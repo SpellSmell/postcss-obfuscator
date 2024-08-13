@@ -29,11 +29,13 @@ const defaultOptions = {
   classPrefix: "", // ClassName prefix.
   classSuffix: "", // ClassName suffix.
   classIgnore: [], // Class to ignore from obfuscation.
+  classInclude: [],
   ids: false, //  Obfuscate #IdNames.
   idMethod: "random", // 'random', 'simple', 'none' obfuscation method for ids .
   idPrefix: "", // idName Prefix.
   idSuffix: "", // idName suffix.
   idIgnore: [], // Ids to ignore from obfuscation.
+  idInclude: [],
   indicatorStart: null, // Identify ids & classes by the preceding string.
   indicatorEnd: null, // Identify ids & classes by the following string.
   jsonsPath: "css-obfuscator", // Path and file name where to save obfuscation data.
@@ -70,11 +72,13 @@ module.exports = (options = {}) => {
     classPrefix,
     classSuffix,
     classIgnore,
+    classInclude,
     ids,
     idMethod,
     idPrefix,
     idSuffix,
     idIgnore,
+    idInclude,
     indicatorStart,
     indicatorEnd,
     jsonsPath,
@@ -168,6 +172,8 @@ module.exports = (options = {}) => {
               let newClassName;
               if (classIgnore.includes(className) || classMethod == "none") {
                 newClassName = className;
+              } else if (classInclude.length !== 0 && !classInclude.includes(className)) {
+                newClassName = className;
               } else if (classMethod == "simple") {
                 newClassName = simplifyString(className);
               } else {
@@ -205,6 +211,8 @@ module.exports = (options = {}) => {
                 // Generate new idName
                 let newIdName;
                 if (idIgnore.includes(idName) || idMethod == "none") {
+                  newIdName = idName.splice(1);
+                if (idInclude.length !== 0 && !idInclude.includes(idName)) {
                   newIdName = idName.splice(1);
                 } else if (idMethod == "simple") {
                   newIdName = simplifyString(idName);
