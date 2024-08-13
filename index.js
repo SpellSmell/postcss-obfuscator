@@ -279,7 +279,7 @@ module.exports = (options = {}) => {
                         htmlExcludes
                     )}/${getFileCount(srcPath, extensions, [])} Files| ${
                         handledClassesCount - classIgnore.length
-                    }/${handledClassesCount} Class| ${idsNo - idIgnore.length}/${idsNo} Id`
+                    }/${totalClassesCount} Class | ${idsNo - idIgnore.length}/${idsNo} Id`
                 );
                 callBack();
                 console.info(
