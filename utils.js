@@ -44,12 +44,9 @@ function writeJsonToFile(
     logger("info", pluginName, "Directory created:", dirPath);
   }
 
-  // Check if the file exists
-  if (!fs.existsSync(filePath)) {
-    // Create the file with an empty object as the default content
-    fs.writeFileSync(filePath, "{}");
-    logger("info", pluginName, "File created:", filePath);
-  }
+  // Create the file with an empty object as the default content
+  fs.writeFileSync(filePath, "{}");
+  logger("info", pluginName, "File created:", filePath);
 
   // Read the existing JSON data from the file
   let jsonData = fs.readFileSync(filePath);
