@@ -24,6 +24,7 @@ const pluginHead = `     __                    ${pluginName}                    
  ======================================================================> `;
 const defaultOptions = {
   enable: true, // Enable plugin
+  debug: false,
   length: 5, // Random  name length.
   classMethod: "random", // 'random', 'simple', 'none' obfuscation method for classes.
   classPrefix: "", // ClassName prefix.
@@ -69,6 +70,7 @@ module.exports = (options = {}) => {
   // Get Final Option By Merging the default and user-defined options
   const {
     enable,
+    debug,
     length,
     classMethod,
     classPrefix,
@@ -189,6 +191,10 @@ module.exports = (options = {}) => {
               } else {
                 newClassName = getRandomName(length);
               }
+              if (debug) {
+                console.debug(`.${className} => .${newClassName}`);
+              }
+
               handledClassesCount++;
               newClassName = `.${classPrefix}${newClassName}${classSuffix}`;
               validCssClassName = '.'+escapeClassName(oldClassName.slice(1));
