@@ -269,53 +269,68 @@ module.exports = (options = {}) => {
                 writeJsonToFile(data, newjsonsPath, formatJson, fresh, !multi & fresh);
                 const desPaths = Array.isArray(desPath) ? desPath : [desPath];
                 if (cssNo == cssFilesNo) {
+                    const replaceInDesPath = destinationPath => {
+                        replaceJsonKeysInFiles(
+                            destinationPath,
+                            extensions,
+                            htmlExcludes,
+                            jsonsPath,
+                            indicatorStart,
+                            indicatorEnd,
+                            keepData
+                        );
+                        logger(
+                            "info",
+                            pluginName,
+                            "Replacing:",
+                            `All files have been updated!`
+                        );
+                        logger(
+                            "success",
+                            pluginName,
+                            "Processed:",
+                            `${cssFilesNo}/${getFileCount(
+                                srcPath,
+                                [".css"],
+                                []
+                            )} CSS | ${getFileCount(
+                                destinationPath,
+                                extensions,
+                                htmlExcludes
+                            )}/${getFileCount(destinationPath, extensions, [])} Files| ${
+                                handledClassesCount - classIgnore.length
+                            }/${totalClassesCount} Class | ${idsNo - idIgnore.length}/${idsNo} Id`
+                        );
+                        callBack();
+                        console.info(
+                            "\x1b[38;2;99;102;241m%s\x1b[0m",
+                            "==========================================================================>",
+                            "\x1b[0m"
+                        );
+                    };
 
-                    for (const destinationPath of desPaths) {
-                        copyDirectory(srcPath, destinationPath, true)
+                    if (Array.isArray(desPath)) {
+                        for (const destinationPath of desPath) {
+                            logger(
+                                "info",
+                                pluginName,
+                                "Replacing in directory:",
+                                `started!`
+                            );
+
+                            replaceInDesPath(destinationPath);
+                        }
+                    } else {
+                        copyDirectory(srcPath, desPath, true)
                             .then(() => {
                                 logger(
                                     "info",
                                     pluginName,
                                     "Copying:",
-                                    `${srcPath} to ${destinationPath} finished!`
+                                    `${srcPath} to ${desPath} finished!`
                                 );
-                                replaceJsonKeysInFiles(
-                                    destinationPath,
-                                    extensions,
-                                    htmlExcludes,
-                                    jsonsPath,
-                                    indicatorStart,
-                                    indicatorEnd,
-                                    keepData
-                                );
-                                logger(
-                                    "info",
-                                    pluginName,
-                                    "Replacing:",
-                                    `All files have been updated!`
-                                );
-                                logger(
-                                    "success",
-                                    pluginName,
-                                    "Processed:",
-                                    `${cssFilesNo}/${getFileCount(
-                                        srcPath,
-                                        [".css"],
-                                        []
-                                    )} CSS| ${getFileCount(
-                                        srcPath,
-                                        extensions,
-                                        htmlExcludes
-                                    )}/${getFileCount(srcPath, extensions, [])} Files| ${
-                                        handledClassesCount - classIgnore.length
-                                    }/${totalClassesCount} Class | ${idsNo - idIgnore.length}/${idsNo} Id`
-                                );
-                                callBack();
-                                console.info(
-                                    "\x1b[38;2;99;102;241m%s\x1b[0m",
-                                    "==========================================================================>",
-                                    "\x1b[0m"
-                                );
+
+                                replaceInDesPath(desPath);
                             })
                             .catch((error) => {
                                 logger(

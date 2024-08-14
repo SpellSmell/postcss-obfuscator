@@ -8,8 +8,8 @@ const pluginName = "PostCSS Obfuscator";
 function getRandomName(length) {
   // Generate a random string of characters with the specified length
   const randomString = Math.random()
-    .toString(36)
-    .substring(2, length - 1 + 2);
+      .toString(36)
+      .substring(2, length - 1 + 2);
   // Combine the random string with a prefix to make it a valid class name (starts with a letter, contains only letters, digits, hyphens, and underscores)
   const randomLetter = String.fromCharCode(Math.floor(Math.random() * 26) + 97); // 97 is the ASCII code for lowercase 'a'
   return `${randomLetter}${randomString}`;
@@ -18,16 +18,16 @@ function getRandomName(length) {
 function simplifyString(str) {
   tempStr = str.replace(/[aeiouw\d_-]/gi, "");
   return tempStr.length < 1
-    ? String.fromCharCode(Math.floor(Math.random() * 26) + 97) + tempStr
-    : tempStr;
+      ? String.fromCharCode(Math.floor(Math.random() * 26) + 97) + tempStr
+      : tempStr;
 }
 
 function writeJsonToFile(
-  data,
-  filePath,
-  format = true,
-  fresh = false,
-  startOver = false
+    data,
+    filePath,
+    format = true,
+    fresh = false,
+    startOver = false
 ) {
   // If startOver is true, remove the directory path
   const dirPath = filePath.substring(0, filePath.lastIndexOf("/"));
@@ -59,20 +59,20 @@ function writeJsonToFile(
 
   // Write the merged data to the file
   const outputData = format
-    ? JSON.stringify(mergedData, null, 2)
-    : JSON.stringify(mergedData);
+      ? JSON.stringify(mergedData, null, 2)
+      : JSON.stringify(mergedData);
   fs.writeFileSync(filePath, outputData);
   logger("info", pluginName, "Data written to file:", filePath);
 }
 
 function replaceJsonKeysInFiles(
-  filesDir,
-  htmlExtensions,
-  htmlExclude,
-  jsonDataPath,
-  indicatorStart,
-  indicatorEnd,
-  keepData
+    filesDir,
+    htmlExtensions,
+    htmlExclude,
+    jsonDataPath,
+    indicatorStart,
+    indicatorEnd,
+    keepData
 ) {
   // Read and merge the JSON data
   const jsonData = {};
@@ -91,15 +91,19 @@ function replaceJsonKeysInFiles(
         replaceJsonKeysInFile(path.join(filePath, subFilePath));
       });
     } else if (
-      htmlExtensions.includes(fileExt) &&
-      !htmlExclude.includes(path.basename(filePath))
+        htmlExtensions.includes(fileExt) &&
+        !htmlExclude.includes(path.basename(filePath))
     ) {
       // Replace JSON keys in the file
       let fileContent = fs.readFileSync(filePath, "utf-8");
       Object.keys(jsonData).forEach((key) => {
         let keyUse = escapeRegExp(key.slice(1).replace(/\\/g, ""));
-        let regex;                         
-        regex = new RegExp(`([\\s"'\\\`]|^)(${keyUse})(?=$|[\\s"'\\\`])`, 'g'); // match exact wording & avoid ` ' ""
+        let regex;
+        if (fileExt === '.map') {
+          regex = new RegExp(`([\\s"'\\\\\`]|^)(${keyUse})(?=$|[\\s"'\\\\\`])`, 'g'); // match exact wording & avoid ` ' ""
+        } else {
+          regex = new RegExp(`([\\s"'\\\`]|^)(${keyUse})(?=$|[\\s"'\\\`])`, 'g'); // match exact wording & avoid ` ' ""
+        }
         fileContent = fileContent.replace(regex, `$1` + jsonData[key].slice(1).replace(/\\/g, "")); // capture preceding space
         if (indicatorStart || indicatorEnd) {
           regex = new RegExp(`([\\s"'\\\`]|^)(${indicatorStart ?? ''}${keyUse})(?=$|[\\s"'\\\`])`, 'g');
@@ -108,7 +112,7 @@ function replaceJsonKeysInFiles(
           fileContent = fileContent.replace(regex, `$1` + jsonData[key].slice(1).replace(/\\/g, ""));
           regex = new RegExp(`([\\s"'\\\`]|^)(${indicatorStart ?? ''}${keyUse}${indicatorEnd ?? ''})(?=$|[\\s"'\\\`])`, 'g');
           fileContent = fileContent.replace(regex, `$1` + jsonData[key].slice(1).replace(/\\/g, ""));
-        }  
+        }
       });
       fs.writeFileSync(filePath, fileContent);
     }
@@ -165,17 +169,17 @@ function getFileCount(directoryPath, extensions, excludePathsOrFiles = []) {
     const filePath = path.join(directoryPath, file);
     const isExcluded = excludePathsOrFiles.some((excludePathOrFile) => {
       return (
-        excludePathOrFile === file ||
-        excludePathOrFile === filePath ||
-        excludePathOrFile === path.basename(filePath)
+          excludePathOrFile === file ||
+          excludePathOrFile === filePath ||
+          excludePathOrFile === path.basename(filePath)
       );
     });
 
     if (fs.statSync(filePath).isDirectory()) {
       count += getFileCount(filePath, extensions, excludePathsOrFiles);
     } else if (
-      extensions.some((extension) => file.endsWith(extension)) &&
-      !isExcluded
+        extensions.some((extension) => file.endsWith(extension)) &&
+        !isExcluded
     ) {
       count++;
     }
@@ -249,7 +253,7 @@ function escapeClassName(className) {
 
     // Use the hexadecimal escape for the first character, followed by the rest of the class name
     // Note: A trailing space is added after the escape sequence to ensure separation
-   return `\\${firstCharCode}${rest.split('').map(char => escapes[char] || char).join('')}`;
+    return `\\${firstCharCode}${rest.split('').map(char => escapes[char] || char).join('')}`;
   }
   // Replace each special character with its escaped version for the rest of the class name
   return className.split('').map(char => escapes[char] || char).join('');
@@ -259,19 +263,19 @@ function octalizeClassName(className) {
   // Escape the first character if it's a digit or a special character
   let firstCharEscaped = '';
   if (/[\d>]/.test(className.charAt(0))) {
-      const firstChar = className.charCodeAt(0).toString(16).toLowerCase();
-      firstCharEscaped = `\\${firstChar}`;
+    const firstChar = className.charCodeAt(0).toString(16).toLowerCase();
+    firstCharEscaped = `\\${firstChar}`;
   }
 
   // Escape other special characters in the rest of the className
   const restEscaped = className.slice(firstCharEscaped ? 1 : 0)
       .split('')
       .map(char => {
-          if (/[!\"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/.test(char)) {
-              // Directly escape special characters
-              return `\\${char}`;
-          }
-          return char;
+        if (/[!\"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/.test(char)) {
+          // Directly escape special characters
+          return `\\${char}`;
+        }
+        return char;
       })
       .join('');
 
@@ -285,16 +289,16 @@ function getClassNames(selectorStr) {
   if (keyframeOrAtRuleRegex.test(selectorStr)) {
     return new Set(); // Return an empty set for ignored cases
   }
-  
+
   // https://github.com/mdevils/css-selector-parser/issues/41
   // Remove '&' used for nesting in CSS, if present
   selectorStr = selectorStr.replace(/(^|\s+)&/g, '');
-  
+
   const parse = createParser({syntax: 'progressive'});
   const ast = parse(selectorStr);
   return extractClassNames(ast);
 }
-  
+
 function getIdNames(selectorStr) {
   let ids = selectorStr.replace(".#", " ").replace(".", " ").trim().split(" ");
   ids = ids.filter((id) => id.charAt(0) == "#");
@@ -340,12 +344,12 @@ function isFileOrInDirectory(paths, filePath) {
     }
 
     if (
-      resolvedCurrentPath.endsWith("/") &&
-      resolvedFilePath.startsWith(resolvedCurrentPath)
+        resolvedCurrentPath.endsWith("/") &&
+        resolvedFilePath.startsWith(resolvedCurrentPath)
     ) {
       // The current path is a directory, so check whether the file is inside it
       const relativeFilePath = resolvedFilePath.substr(
-        resolvedCurrentPath.length
+          resolvedCurrentPath.length
       );
 
       if (!relativeFilePath.startsWith("/") && relativeFilePath !== "") {
