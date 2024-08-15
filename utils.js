@@ -118,13 +118,13 @@ function replaceInString(jsonData, content, extension, indicatorStart, indicator
         let regex;
         regex = new RegExp(`([\\s"'\\\\\`]|^)(${keyUse})(?=$|[\\s"'\\\\\`])`, 'g'); // match exact wording & avoid ` ' ""
 
-        result = result.replace(regex, `$1` + jsonData[key].slice(1).replace(/\\/g, "")); // capture preceding space
+        result = result.replace(regex, `$1` + jsonData[key].slice(1).replace(/\\\\/g, "")); // capture preceding space
         if (indicatorStart || indicatorEnd) {
-            regex = new RegExp(`([\\s"'\\\`]|^)(${indicatorStart ?? ''}${keyUse})(?=$|[\\s"'\\\`])`, 'g');
+            regex = new RegExp(`([\\s"'\\\`]|^)(${indicatorStart || ''}${keyUse})(?=$|[\\s"'\\\`])`, 'g');
             result = result.replace(regex, `$1` + jsonData[key].slice(1).replace(/\\/g, ""));
-            regex = new RegExp(`([\\s"'\\\`]|^)(${keyUse}${indicatorEnd ?? ''})(?=$|[\\s"'\\\`])`, 'g');
+            regex = new RegExp(`([\\s"'\\\`]|^)(${keyUse}${indicatorEnd || ''})(?=$|[\\s"'\\\`])`, 'g');
             result = result.replace(regex, `$1` + jsonData[key].slice(1).replace(/\\/g, ""));
-            regex = new RegExp(`([\\s"'\\\`]|^)(${indicatorStart ?? ''}${keyUse}${indicatorEnd ?? ''})(?=$|[\\s"'\\\`])`, 'g');
+            regex = new RegExp(`([\\s"'\\\`]|^)(${indicatorStart || ''}${keyUse}${indicatorEnd || ''})(?=$|[\\s"'\\\`])`, 'g');
             result = result.replace(regex, `$1` + jsonData[key].slice(1).replace(/\\/g, ""));
         }
     });
