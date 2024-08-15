@@ -182,6 +182,8 @@ const matchList = {
     ".\\*\\:pt-4 > *": ["*:pt-4"], //global
 };
 
-Object.entries(matchList).forEach(([selector, classes]) =>
-    assertClasses(selector, classes)
-);
+test('getClassNames test', () => {
+    Object.entries(matchList).forEach(([selector, classes]) =>
+        assertClasses(selector, classes)
+    );
+});
