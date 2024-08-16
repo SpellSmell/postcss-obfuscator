@@ -65,6 +65,7 @@ let handledClassesCount = 0;
 let totalClassesCount = 0;
 let idsNo = 0;
 let isFirstRun = true;
+const classesInCssList = [];
 const envMode = process.env.NODE_ENV;
 
 module.exports = (options = {}) => {
@@ -170,6 +171,7 @@ module.exports = (options = {}) => {
                     rule.selectors = rule.selectors.map((selector) => {
                         // get List of all classNames in the selector
                         const classList = getClassNames(selector);
+                        classesInCssList.push(...classList.values())
                         totalClassesCount += classList.size;
                         if (isFirstRun) {
                             for (const className of classInclude) {
@@ -314,7 +316,7 @@ module.exports = (options = {}) => {
                             logger(
                                 "info",
                                 pluginName,
-                                "Replacing in directory:",
+                                `Replacing in directory: ${destinationPath}`,
                                 `started!`
                             );
 
@@ -340,6 +342,19 @@ module.exports = (options = {}) => {
                                     error.message
                                 );
                             });
+                    }
+
+                    if (classInclude.length > 0) {
+                        const notSpecifiedInCssClasses = classInclude.filter(className => !classesInCssList.includes(className));
+
+                        if (notSpecifiedInCssClasses.length > 0) {
+                            logger(
+                                'info',
+                                pluginName,
+                                `${notSpecifiedInCssClasses.length} css classes was obfuscated, nut not specified in css: `,
+                                notSpecifiedInCssClasses.join(', '),
+                            );
+                        }
                     }
                 }
             }
