@@ -1,17 +1,12 @@
 const {
-    getRandomName,
-    simplifyString,
     writeJsonToFile,
     copyDirectory,
     replaceJsonKeysInFiles,
     getFileCount,
-    getClassNames,
-    getIdNames,
     logger,
     getRelativePath,
     isFileOrInDirectory,
-    escapeClassName,
-    octalizeClassName,
+    processSelector,
 } = require("./utils");
 const path = require("path");
 
@@ -169,99 +164,33 @@ module.exports = (options = {}) => {
                 }
                 root.walkRules((rule) => {
                     rule.selectors = rule.selectors.map((selector) => {
-                        // get List of all classNames in the selector
-                        const classList = getClassNames(selector);
-                        classesInCssList.push(...classList.values())
-                        totalClassesCount += classList.size;
-                        if (isFirstRun) {
-                            for (const className of classInclude) {
-                                if (!classList.has(className)) {
-                                    classList.add(className);
-                                }
-                            }
-                        }
+                        const config = {
+                            debug,
+                            length,
+                            classIgnore,
+                            classInclude,
+                            classMethod,
+                            classPrefix,
+                            classSuffix,
+                            ids,
+                            idIgnore,
+                            idInclude,
+                            idMethod,
+                            idPrefix,
+                            idSuffix,
+                        };
 
-                        classList.forEach((className) => {
-                            // Generate new className
-                            let oldClassName = "." + className;
-                            let newClassName;
-                            if (classIgnore.includes(className) || classMethod == "none") {
-                                return;
-                            } else if (classInclude.length !== 0 && !classInclude.includes(className)) {
-                                return;
-                            } else if (classMethod == "simple") {
-                                newClassName = simplifyString(className);
-                            } else {
-                                newClassName = getRandomName(length);
-                            }
-                            if (debug) {
-                                console.debug(`.${className} => .${newClassName}`);
-                            }
-
-                            handledClassesCount++;
-                            newClassName = `.${classPrefix}${newClassName}${classSuffix}`;
-                            validCssClassName = '.' + escapeClassName(oldClassName.slice(1));
-                            //cond
-                            octalValidCssClassName = '.' + octalizeClassName(oldClassName.slice(1));
-                            // If ClassName already exist replace with its value else generate new : the should have same name.
-                            if (jsonData.hasOwnProperty(oldClassName)) {
-                                selector = selector.replace(
-                                    validCssClassName,
-                                    jsonData[oldClassName]
-                                );
-                                //cond
-                                selector = selector.replace(
-                                    octalValidCssClassName,
-                                    jsonData[oldClassName]
-                                );
-                            } else {
-                                selector = selector.replace(validCssClassName, newClassName);
-                                //cond
-                                selector = selector.replace(octalValidCssClassName, newClassName);
-                                jsonData[oldClassName] = newClassName;
-                            }
-                            singleFileData[oldClassName] = newClassName;
-                        });
-                        if (ids) {
-                            idList = getIdNames(selector);
-                            if (isFirstRun) {
-                                for (const id of idInclude) {
-                                    if (!idList.has(id)) {
-                                        idList.add(id);
-                                    }
-                                }
-                            }
-
-                            idList.forEach((idName) => {
-                                idsNo++;
-                                // Get only idName not other elements or pseudo-element & remove spaces.
-                                let oldIdName = idName;
-                                // Generate new idName
-                                let newIdName;
-                                if (idIgnore.includes(idName) || idMethod == "none") {
-                                    newIdName = idName.splice(1);
-                                } else if (idInclude.length !== 0 && !idInclude.includes(idName)) {
-                                    newIdName = idName.splice(1);
-                                } else if (idMethod == "simple") {
-                                    newIdName = simplifyString(idName);
-                                } else {
-                                    newIdName = getRandomName(length);
-                                }
-                                newIdName = `#${idPrefix}${newIdName}${idSuffix}`;
-
-                                if (jsonData.hasOwnProperty(oldIdName)) {
-                                    selector = selector.replace(oldIdName, jsonData[oldIdName]);
-                                } else {
-                                    selector = selector.replace(oldIdName, newIdName);
-                                    jsonData[oldIdName] = newIdName;
-                                }
-                                singleFileData[oldIdName] = newIdName;
-                            });
-                        }
+                        const result = processSelector(selector, config, idList, isFirstRun);
+                        classesInCssList.push(...result.classesInCssList);
+                        handledClassesCount += result.handledClassesCount;
+                        totalClassesCount += result.totalClassesCount;
+                        idsNo += result.idsNo;
+                        jsonData = { ...jsonData, ...result.jsonData };
+                        singleFileData = { ...singleFileData, ...result.singleFileData };
 
                         isFirstRun = false;
 
-                        return selector;
+                        return result.selector;
                     });
                 });
                 jsonData = {...jsonData, ...singleFileData};

@@ -132,6 +132,139 @@ function replaceInString(jsonData, content, extension, indicatorStart, indicator
     return result;
 }
 
+function replaceInSelector(selector, search, replace) {
+    return selector.replace(search, replace);
+}
+
+function processSelector(selector, config = {}, idList = new Set(), isFirstRun = true) {
+    const {
+        debug = false,
+        length = 5,
+        classIgnore = [],
+        classInclude = [],
+        classMethod = 'random',
+        classPrefix = '',
+        classSuffix = '',
+        ids = false,
+        idIgnore = [],
+        idInclude = [],
+        idMethod = 'random',
+        idPrefix = '',
+        idSuffix = '',
+    } = config;
+
+    let totalClassesCount = 0;
+    let handledClassesCount = 0;
+    let idsNo = 0;
+    const classesInCssList = [];
+    const jsonData = {};
+    const singleFileData = {};
+
+    // get List of all classNames in the selector
+    const classList = getClassNames(selector);
+    classesInCssList.push(...classList.values())
+    totalClassesCount += classList.size;
+    if (isFirstRun) {
+        for (const className of classInclude) {
+            if (!classList.has(className)) {
+                classList.add(className);
+            }
+        }
+    }
+
+    const classListArray = Array.from(classList);
+
+    classListArray.sort().reverse().forEach((className) => {
+        // Generate new className
+        let oldClassName = "." + className;
+        let newClassName;
+        if (classIgnore.includes(className) || classMethod === 'none') {
+            return;
+        } else if (classInclude.length !== 0 && !classInclude.includes(className)) {
+            return;
+        } else if (classMethod === 'simple') {
+            newClassName = simplifyString(className);
+        } else {
+            newClassName = getRandomName(length);
+        }
+        if (debug) {
+            console.debug(`.${className} => .${newClassName}`);
+        }
+
+        handledClassesCount++;
+        newClassName = `.${classPrefix}${newClassName}${classSuffix}`;
+        const validCssClassName = '.' + escapeClassName(oldClassName.slice(1));
+        //cond
+        const octalValidCssClassName = '.' + octalizeClassName(oldClassName.slice(1));
+        // If ClassName already exist replace with its value else generate new : the should have same name.
+        if (jsonData.hasOwnProperty(oldClassName)) {
+            selector = replaceInSelector(
+                selector,
+                validCssClassName,
+                jsonData[oldClassName]
+            );
+            //cond
+            selector = replaceInSelector(
+                selector,
+                octalValidCssClassName,
+                jsonData[oldClassName]
+            );
+        } else {
+            selector = replaceInSelector(selector, validCssClassName, newClassName);
+            //cond
+            selector = replaceInSelector(selector, octalValidCssClassName, newClassName);
+            jsonData[oldClassName] = newClassName;
+        }
+        singleFileData[oldClassName] = newClassName;
+    });
+    if (ids) {
+        idList = getIdNames(selector);
+        if (isFirstRun) {
+            for (const id of idInclude) {
+                if (!idList.has(id)) {
+                    idList.add(id);
+                }
+            }
+        }
+
+        idList.forEach((idName) => {
+            idsNo++;
+            // Get only idName not other elements or pseudo-element & remove spaces.
+            let oldIdName = idName;
+            // Generate new idName
+            let newIdName;
+            if (idIgnore.includes(idName) || idMethod === 'none') {
+                newIdName = idName.splice(1);
+            } else if (idInclude.length !== 0 && !idInclude.includes(idName)) {
+                newIdName = idName.splice(1);
+            } else if (idMethod === 'simple') {
+                newIdName = simplifyString(idName);
+            } else {
+                newIdName = getRandomName(length);
+            }
+            newIdName = `#${idPrefix}${newIdName}${idSuffix}`;
+
+            if (jsonData.hasOwnProperty(oldIdName)) {
+                selector = replaceInSelector(selector, oldIdName, jsonData[oldIdName]);
+            } else {
+                selector = replaceInSelector(selector, oldIdName, newIdName);
+                jsonData[oldIdName] = newIdName;
+            }
+            singleFileData[oldIdName] = newIdName;
+        });
+    }
+
+    return {
+        selector,
+        classesInCssList,
+        handledClassesCount,
+        totalClassesCount,
+        idsNo,
+        jsonData,
+        singleFileData,
+    };
+}
+
 function copyDirectory(source, destination, copyHiddenFiles = false) {
     return new Promise((resolve, reject) => {
         // Create the destination directory if it doesn't exist
@@ -408,4 +541,6 @@ module.exports = {
     octalizeClassName,
     findFiles,
     replaceInString,
+    replaceInSelector,
+    processSelector,
 };

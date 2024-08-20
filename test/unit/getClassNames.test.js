@@ -61,6 +61,7 @@ const matchList = {
         "vs--loading",
         "vs__search",
     ],
+    '.ui-tabs__button:not(.ui-tabs__button--grow)': ['ui-tabs__button', 'ui-tabs__button--grow'],
 
     // Bootsrap Selectors
     ".form-range:disabled::-moz-range-thumb": ["form-range"],
