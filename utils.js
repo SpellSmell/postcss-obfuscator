@@ -136,7 +136,7 @@ function replaceInSelector(selector, search, replace) {
     return selector.replace(search, replace);
 }
 
-function processSelector(selector, config = {}, idList = new Set(), isFirstRun = true) {
+function processSelector(selector, config = {}, idList = new Set(), jsonData = {}, singleFileData = {}, isFirstRun = true) {
     const {
         debug = false,
         length = 5,
@@ -157,8 +157,6 @@ function processSelector(selector, config = {}, idList = new Set(), isFirstRun =
     let handledClassesCount = 0;
     let idsNo = 0;
     const classesInCssList = [];
-    const jsonData = {};
-    const singleFileData = {};
 
     // get List of all classNames in the selector
     const classList = getClassNames(selector);

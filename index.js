@@ -180,14 +180,11 @@ module.exports = (options = {}) => {
                             idSuffix,
                         };
 
-                        const result = processSelector(selector, config, idList, isFirstRun);
+                        const result = processSelector(selector, config, idList, jsonData, singleFileData, isFirstRun);
                         classesInCssList.push(...result.classesInCssList);
                         handledClassesCount += result.handledClassesCount;
                         totalClassesCount += result.totalClassesCount;
                         idsNo += result.idsNo;
-                        jsonData = { ...jsonData, ...result.jsonData };
-                        singleFileData = { ...singleFileData, ...result.singleFileData };
-
                         isFirstRun = false;
 
                         return result.selector;
