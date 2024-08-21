@@ -116,7 +116,7 @@ function replaceInString(jsonData, content, extension, indicatorStart, indicator
     Object.keys(jsonData).forEach((key) => {
         let keyUse = escapeRegExp(key.slice(1).replace(/\\/g, ""));
         let regex;
-        regex = new RegExp(`([\\s"'\\\\\`]|^)(${keyUse})(?=$|[\\s"'\\\\\`])`, 'g'); // match exact wording & avoid ` ' ""
+        regex = new RegExp(`([\\s\."'\\\\\`]|^)(${keyUse})(?=$|[\\s"'\\\\\`])`, 'g'); // match exact wording & avoid ` ' ""
 
         result = result.replace(regex, `$1` + jsonData[key].slice(1).replace(/\\\\/g, "")); // capture preceding space
         if (indicatorStart || indicatorEnd) {

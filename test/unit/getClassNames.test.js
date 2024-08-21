@@ -3,10 +3,7 @@ const {getClassNames} = require("../../utils");
 
 function assertClasses(actualSelector, expectedClasses) {
     let foundClasses = getClassNames(actualSelector);
-    console.log(actualSelector);
-    console.log(expectedClasses);
     if (foundClasses.size !== expectedClasses.length) {
-        console.log(expectedClasses, foundClasses);
         throw new Error(
             `Assertion failed: expected ${expectedClasses.length} but got ${foundClasses.size}`
         );
@@ -15,7 +12,6 @@ function assertClasses(actualSelector, expectedClasses) {
         foundClasses.has(expectedClass)
     );
     if (!allClassesMatch) {
-        console.log(expectedClasses, foundClasses);
         throw new Error(
             `Assertion failed: expected classes and found classes do not match.`
         );
